@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carta de Amor Especial</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f1de;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #heart-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+        #heart {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: #e74c3c;
+            transform: rotate(45deg);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: all 0.5s ease;
+        }
+        #heart::before,
+        #heart::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+        }
+        #heart::before {
+            left: -100px;
+        }
+        #heart::after {
+            top: -100px;
+        }
+        #letter {
+            display: none;
+            position: relative;
+            width: 500px;
+            min-height: 700px;
+            background-color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 60px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        #letter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(transparent 95%, #c0c0c0 95%),
+                linear-gradient(90deg, transparent 95%, #c0c0c0 95%);
+            background-size: 30px 30px;
+            opacity: 0.2;
+        }
+        #watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100px;
+            color: rgba(0,0,0,0.05);
+            user-select: none;
+        }
+        .letter-content {
+            position: relative;
+            z-index: 1;
+            line-height: 1.6;
+        }
+        .signature {
+            text-align: right;
+            margin-top: 30px;
+            font-style: italic;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div id="heart-container">
+        <div id="heart" onclick="openLetter()"></div>
+    </div>
+
+    <div id="letter">
+        <div id="watermark">Amor</div>
+        <div class="letter-content">
+            <h1 style="text-align:center; margin-bottom:30px;">Carta de Amor</h1>
+            
+            <p>Mi amor más querido,</p>
+            
+            <p>Cada línea de esta carta está escrita con el corazón, cada palabra es un reflejo de lo que siento por ti. Desde el primer momento en que te vi, supe que mi vida cambiaría para siempre.</p>
+            
+            <p>Eres mi refugio en las tormentas, mi luz en la oscuridad, mi compañero en cada aventura. Tu sonrisa ilumina mis días, tu abrazo me reconforta en las noches más frías, y tu amor es el hogar que siempre he buscado.</p>
+            
+            <p>No se trata solo de los momentos grandes, sino de los pequeños instantes: una mirada, un suspiro, un silencio compartido. Contigo, cada segundo es una melodía, cada respiro es una promesa.</p>
+            
+            <p>Prometo amarte no solo en los momentos de alegría, sino también en los desafíos. Prometo ser tu apoyo, tu confidente, tu compañero de vida.</p>
+            
+            <a href="arbolNavidavaleska.html" class="btn" target="_blank">Dale click para que veas tu regalo</a>
+            
+            <div class="signature">
+                <p>Eternamente tuyo,</p>
+                <p>Con todo mi corazón</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openLetter() {
+            const heartContainer = document.getElementById('heart-container');
+            const heart = document.getElementById('heart');
+            const letter = document.getElementById('letter');
+            
+            // Animate heart
+            heart.style.transform = 'rotate(45deg) scale(0)';
+            heartContainer.style.opacity = '0';
+            
+            // Show letter
+            setTimeout(() => {
+                heartContainer.style.display = 'none';
+                letter.style.display = 'block';
+                
+                // Fade in letter
+                setTimeout(() => {
+                    letter.style.opacity = '1';
+                }, 50);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
