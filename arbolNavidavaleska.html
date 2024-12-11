@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Navidad</title>
+</head>
+<body>
+    
+    <div class="message">Feliz Navidad, princesita</div>
+    <button id="playButton">Reproducir</button>
+
+<style>
+    * { margin: 0; padding: 0; }
+    canvas { display: block; }
+    body { background: linear-gradient(135deg, #5B0000, #7C0A02, #8B0000, #4A0000); }
+    .controls {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        padding: 10px 20px;
+        border-radius: 20px;
+        display: flex;
+        gap: 20px;
+        color: white;
+        font-family: Arial, sans-serif;
+        z-index: 1000;
+    }
+    .control-btn {
+        background: none;
+        border: 2px solid rgb(9, 255, 0);
+        color: rgb(255, 48, 12);
+        padding: 5px 15px;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .control-btn:hover {
+        background: white;
+        color: black;
+    }
+    .message {
+    margin: 5px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #FFD700; /* Dorado */
+    text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700, 0 0 20px #FF8C00, 0 0 30px #FF4500;
+    animation: flicker 2s infinite alternate;
+}
+
+/* Efecto parpadeante */
+@keyframes flicker {
+    0% {
+        opacity: 0.8;
+        text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700, 0 0 20px #FF8C00, 0 0 30px #FF4500;
+    }
+    50% {
+        opacity: 1;
+        text-shadow: 0 0 10px #FFD700, 0 0 20px #FF8C00, 0 0 40px #FF4500, 0 0 60px #FF6347;
+    }
+    100% {
+        opacity: 0.9;
+        text-shadow: 0 0 5px #FFD700, 0 0 15px #FF8C00, 0 0 25px #FF4500, 0 0 35px #FF6347;
+    }
+}
+#playButton {
+            font-size: 12px; /* Tamaño de la fuente más pequeño */
+            padding: 8px 16px; /* Relleno reducido */
+            border-radius: 5px; /* Bordes redondeados */
+            background-color: #4CAF50; /* Color de fondo */
+            color: white; /* Color de texto */
+            border: none; /* Sin borde */
+            cursor: pointer; /* Cursor al pasar el ratón */
+            
+            /* Posicionamiento en la esquina superior derecha */
+            position: fixed;
+            top: 10px; /* Espacio desde el top */
+            right: 10px; /* Espacio desde la derecha */
+            z-index: 1000; /* Asegura que el botón esté por encima de otros elementos */
+        }
+
+        /* Efecto al pasar el ratón */
+        #playButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <div class="controls">
+        <button class="control-btn" id="colorMode">Cambiar color</button>
+        <button class="control-btn" id="rotateMode">Cambiar Rotación</button>
+        <button class="control-btn" id="pulseMode">Pausar Rotación</button>
+        <button class="control-btn" id="explodeMode">Explosión</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script>
+    class ModernTree {
+        constructor() {
+            this.scene = new THREE.Scene();
+            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+            this.floatingCrystals = [];
+            this.time = 0;
+            this.clock = new THREE.Clock();
+            this.isRotating = true;
+            this.isPulsing = true;
+            this.isExploding = false;
+            this.explosionProgress = 0;
+            this.explosionForce = 8;
+            this.shouldResetCrystals = false;
+            this.colorSchemes = [
+                { base: 0x00ff88, accent: 0xffd700 },
+                { base: 0x00aaff, accent: 0xff3300 },
+                { base: 0xff00ff, accent: 0x00ffff },
+                { base: 0xffaa00, accent: 0x0088ff }
+            ];
+            this.currentScheme = 0;
+            this.tree = new THREE.Group();
+            this.init();
+            this.animate();
+        }
+    
+        init() {
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            document.body.appendChild(this.renderer.domElement);
+            this.camera.position.set(0, 8, 20);
+            this.camera.lookAt(0, 0, 0);
+            this.setupLighting();
+            this.scene.add(this.tree);
+            this.createTree();
+            this.createGround();
+            this.createAmbientParticles();
+            this.addEventListeners();
+            this.setupControls();
+        }
+    
+        setupLighting() {
+            const ambientLight = new THREE.AmbientLight(0x333333, 0.5);
+            this.scene.add(ambientLight);
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+            mainLight.position.set(5, 10, 5);
+            mainLight.castShadow = true;
+            this.scene.add(mainLight);
+    
+            const treeHeight = 15;
+            const lightCount = 8;
+            this.treeLights = [];
+            for(let i = 0; i < lightCount; i++) {
+                const height = -4 + (i / lightCount) * treeHeight;
+                const radius = 2 * (1 - i/lightCount);
+                const angle = (i / lightCount) * Math.PI * 4;
+                const light = new THREE.PointLight(0xffffff, 0.4, 4);
+                light.position.set(
+                    Math.cos(angle) * radius,
+                    height,
+                    Math.sin(angle) * radius
+                );
+                this.tree.add(light);
+                this.treeLights.push(light);
+            }
+        }
+    
+        createTree() {
+            const treeHeight = 15;
+            const layerCount = 25;
+            const glowGeometry = new THREE.CylinderGeometry(0.5, 2, treeHeight, 32);
+            const glowMaterial = new THREE.MeshPhongMaterial({
+                color: this.colorSchemes[this.currentScheme].base,
+                transparent: true,
+                opacity: 0.1,
+                side: THREE.DoubleSide
+            });
+            this.treeGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            this.treeGlow.position.y = treeHeight/2 - 4;
+            this.tree.add(this.treeGlow);
+    
+            for (let layer = 0; layer < layerCount; layer++) {
+                const radius = 5 * (1 - layer / layerCount) * 1.2;
+                const y = -4 + (layer / layerCount) * treeHeight;
+                const crystalsInLayer = Math.floor(12 * (1 - layer / layerCount) + 6);
+                const layerRotation = (layer % 2) * (Math.PI / crystalsInLayer / 2);
+                
+                for (let i = 0; i < crystalsInLayer; i++) {
+                    const angle = (i / crystalsInLayer) * Math.PI * 2 + layerRotation;
+                    const radiusVariation = 1 + Math.sin(layer * 0.5) * 0.2;
+                    const pos = new THREE.Vector3(
+                        Math.cos(angle) * radius * radiusVariation,
+                        y,
+                        Math.sin(angle) * radius * radiusVariation
+                    );
+    
+                    const crystal = this.createCrystal(pos, 0.3 * (1 - layer/layerCount * 0.5));
+                    this.floatingCrystals.push(crystal);
+                    this.tree.add(crystal.mesh);
+                }
+            }
+    
+            const starPos = new THREE.Vector3(0, treeHeight - 4, 0);
+            const star = this.createCrystal(starPos, 0.8, this.colorSchemes[this.currentScheme].accent);
+            star.isStar = true;
+            this.floatingCrystals.push(star);
+            this.tree.add(star.mesh);
+        }
+    
+        createCrystal(pos, scale, color = this.colorSchemes[this.currentScheme].base) {
+            const explosionDirection = new THREE.Vector3(
+                Math.random() * 2 - 1,
+                Math.random() * 2 - 1,
+                Math.random() * 2 - 1
+            ).normalize();
+            const geometry = new THREE.IcosahedronGeometry(scale, 1);
+            const material = new THREE.MeshPhysicalMaterial({
+                color: color,
+                metalness: 0.8,
+                roughness: 0.2,
+                transparent: true,
+                opacity: 0.9,
+                side: THREE.DoubleSide
+            });
+    
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.copy(pos);
+            
+            return {
+                mesh: mesh,
+                initialPos: pos.clone(),
+                initialY: pos.y,
+                rotationSpeed: Math.random() * 0.02 - 0.01,
+                floatSpeed: Math.random() * 0.002 + 0.001,
+                floatOffset: Math.random() * Math.PI * 2,
+                pulsePhase: Math.random() * Math.PI * 2,
+                isStar: false,
+                explosionDirection: explosionDirection,
+                explosionRotation: new THREE.Vector3(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI
+                )
+            };
+        }
+    
+        createGround() {
+            const groundGeometry = new THREE.CircleGeometry(12, 64);
+            const groundMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                metalness: 0.9,
+                roughness: 0.1,
+                transparent: true,
+                opacity: 0.3
+            });
+    
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -4;
+            this.scene.add(ground);
+        }
+    
+        createAmbientParticles() {
+            const particleCount = 500;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            
+            for(let i = 0; i < particleCount * 3; i += 3) {
+                const radius = 3 + Math.random() * 3;
+                const theta = Math.random() * Math.PI * 2;
+                const y = Math.random() * 15 - 2;
+                
+                positions[i] = Math.cos(theta) * radius;
+                positions[i + 1] = y;
+                positions[i + 2] = Math.sin(theta) * radius;
+            }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const material = new THREE.PointsMaterial({
+                color: this.colorSchemes[this.currentScheme].base,
+                size: 0.05,
+                transparent: true,
+                opacity: 0.3,
+                blending: THREE.AdditiveBlending
+            });
+            
+            this.particles = new THREE.Points(geometry, material);
+            this.scene.add(this.particles);
+        }
+    
+        resetCrystals() {
+            this.floatingCrystals.forEach(crystal => {
+                crystal.mesh.position.copy(crystal.initialPos);
+                crystal.mesh.rotation.set(0, 0, 0);
+                crystal.mesh.scale.set(1, 1, 1);
+            });
+        }
+    
+        setupControls() {
+            document.getElementById('colorMode').onclick = () => {
+                this.currentScheme = (this.currentScheme + 1) % this.colorSchemes.length;
+                this.updateColors();
+            };
+    
+            document.getElementById('rotateMode').onclick = () => {
+                this.isRotating = !this.isRotating;
+                if (!this.isRotating) {
+                    this.camera.position.set(0, 8, 20);
+                    this.camera.lookAt(0, 0, 0);
+                }
+            };
+    
+            document.getElementById('pulseMode').onclick = () => {
+                this.isPulsing = !this.isPulsing;
+            };
+    
+            document.getElementById('explodeMode').onclick = () => {
+                if (this.isExploding) {
+                    this.shouldResetCrystals = true;
+                } else {
+                    this.isExploding = true;
+                    this.explosionProgress = 0;
+                }
+            };
+        }
+    
+        updateColors() {
+            const scheme = this.colorSchemes[this.currentScheme];
+            this.floatingCrystals.forEach(crystal => {
+                crystal.mesh.material.color.setHex(
+                    crystal.isStar ? scheme.accent : scheme.base
+                );
+            });
+            this.treeGlow.material.color.setHex(scheme.base);
+            if (this.particles) {
+                this.particles.material.color.setHex(scheme.base);
+            }
+        }
+    
+        addEventListeners() {
+            window.addEventListener('resize', () => {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+    
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+    
+            document.addEventListener('mousedown', () => isDragging = true);
+            document.addEventListener('mouseup', () => isDragging = false);
+            document.addEventListener('mousemove', (event) => {
+                if (isDragging && !this.isRotating) {
+                    const deltaMove = {
+                        x: event.clientX - previousMousePosition.x,
+                        y: event.clientY - previousMousePosition.y
+                    };
+    
+                    const delta = 0.01;
+                    this.tree.rotation.y += deltaMove.x * delta;
+                    this.tree.rotation.x += deltaMove.y * delta;
+                    this.tree.rotation.x = Math.max(-0.5, Math.min(0.5, this.tree.rotation.x));
+                }
+                previousMousePosition = {
+                    x: event.clientX,
+                    y: event.clientY
+                };
+            });
+    
+            document.addEventListener('wheel', (event) => {
+                const zoomSpeed = 0.1;
+                this.camera.position.z = Math.max(
+                    10,
+                    Math.min(30, this.camera.position.z + event.deltaY * zoomSpeed)
+                );
+            });
+        }
+    
+        animate = () => {
+            requestAnimationFrame(this.animate);
+            this.time += 0.016;
+    
+            if (this.isRotating) {
+                const radius = 20;
+                this.camera.position.x = Math.sin(this.time * 0.3) * radius;
+                this.camera.position.z = Math.cos(this.time * 0.3) * radius;
+                this.camera.position.y = 8 + Math.sin(this.time * 0.5) * 2;
+                this.camera.lookAt(0, 0, 0);
+            }
+    
+            if (this.treeLights) {
+                this.treeLights.forEach((light, i) => {
+                    light.intensity = 0.4 + Math.sin(this.time * 2 + i) * 0.2;
+                });
+            }
+    
+            this.floatingCrystals.forEach(crystal => {
+                if (this.isExploding) {
+                    if (this.shouldResetCrystals) {
+                        const lerpFactor = 0.05;
+                        crystal.mesh.position.lerp(crystal.initialPos, lerpFactor);
+                        crystal.mesh.scale.lerp(new THREE.Vector3(1, 1, 1), lerpFactor);
+                        
+                        const distanceToHome = crystal.mesh.position.distanceTo(crystal.initialPos);
+                        if (distanceToHome < 0.01) {
+                            this.isExploding = false;
+                            this.shouldResetCrystals = false;
+                            crystal.mesh.position.copy(crystal.initialPos);
+                            crystal.mesh.scale.set(1, 1, 1);
+                        }
+                    } else {
+                        this.explosionProgress = Math.min(1, this.explosionProgress + 0.03);
+                        
+                        const explodeFactor = this.explosionForce * this.explosionProgress;
+                        crystal.mesh.position.x = crystal.initialPos.x + crystal.explosionDirection.x * explodeFactor;
+                        crystal.mesh.position.y = crystal.initialPos.y + crystal.explosionDirection.y * explodeFactor;
+                        crystal.mesh.position.z = crystal.initialPos.z + crystal.explosionDirection.z * explodeFactor;
+                        
+                        crystal.mesh.rotation.x += crystal.explosionRotation.x * 0.05;
+                        crystal.mesh.rotation.y += crystal.explosionRotation.y * 0.05;
+                        crystal.mesh.rotation.z += crystal.explosionRotation.z * 0.05;
+                        
+                        const scale = 1 - this.explosionProgress * 0.3;
+                        crystal.mesh.scale.set(scale, scale, scale);
+                    }
+                } else if (this.isPulsing) {
+                    const pulseScale = 1 + Math.sin(this.time * 2 + crystal.pulsePhase) * 0.2;
+                    crystal.mesh.scale.set(pulseScale, pulseScale, pulseScale);
+                    crystal.mesh.position.y = crystal.initialY + 
+                        Math.sin(this.time * 1.5 + crystal.floatOffset) * 0.3;
+                    
+                    crystal.mesh.rotation.x += crystal.rotationSpeed * 2;
+                    crystal.mesh.rotation.y += crystal.rotationSpeed * 2;
+                } else {
+                    crystal.mesh.scale.set(1, 1, 1);
+                    crystal.mesh.position.y = crystal.initialY;
+                    
+                    crystal.mesh.rotation.x += crystal.rotationSpeed;
+                    crystal.mesh.rotation.y += crystal.rotationSpeed;
+                }
+            });
+    
+            if (this.particles) {
+                const positions = this.particles.geometry.attributes.position.array;
+                for(let i = 0; i < positions.length; i += 3) {
+                    positions[i] += Math.sin(this.time + i) * 0.001;
+                    positions[i + 1] += Math.cos(this.time + i) * 0.001;
+                    if (positions[i + 1] > 13) positions[i + 1] = -2;
+                }
+                this.particles.geometry.attributes.position.needsUpdate = true;
+            }
+    
+            this.renderer.render(this.scene, this.camera);
+        }
+    }
+        // Crear un objeto de audio con la ruta al archivo
+        const audio = new Audio('villancico.m3'); // Cambia 'villancico.mp3' por la ruta de tu archivo
+
+        // Función para reproducir el villancico
+        document.getElementById('playButton').addEventListener('click', function() {
+            audio.play();
+        });
+    
+    
+    const tree = new ModernTree();
+    </script>
+    </body>
+    </html>
