@@ -119,44 +119,71 @@
         function goToGift() {
             // Cambia esto a la URL de tu página de regalo
             alert("¡Sorpresa! Aquí aparecerá tu regalo.");
-            window.location.href = 'tu_pagina_de_regalo.html';
+            window.location.href = 'arbolNavidavaleska.html';
         }
     </script> 
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const content = document.getElementById('content');
-        let position = 0; // Posición inicial
-        let speed = 0.1; // Velocidad automática (más lento = menor valor)
-        let manualControl = false; // Bandera para saber si el usuario controla
+    const content = document.getElementById('content');
+    let position = 0; // Posición inicial
+    let speed = 0.1; // Velocidad automática (más lento = menor valor)
+    let manualControl = false; // Bandera para saber si el usuario controla
 
-        function autoScroll() {
-            if (!manualControl) {
-                position -= speed; // Mueve el texto hacia arriba
-                content.style.transform = `translateY(${position}px)`;
-            }
-            requestAnimationFrame(autoScroll);
-        }
+    // Variables para el control táctil
+    let touchStartY = 0;
+    let touchMoveY = 0;
 
-        document.addEventListener('keydown', (event) => {
-            manualControl = true;
-            const step = 10; // Velocidad de movimiento manual
-            if (event.key === 'ArrowUp') {
-                position += step; // Subir
-            } else if (event.key === 'ArrowDown') {
-                position -= step; // Bajar
-            }
+    function autoScroll() {
+        if (!manualControl) {
+            position -= speed; // Mueve el texto hacia arriba
             content.style.transform = `translateY(${position}px)`;
-        });
+        }
+        requestAnimationFrame(autoScroll);
+    }
 
-        document.addEventListener('keyup', () => {
-            setTimeout(() => {
-                manualControl = false; // Regresar a automático tras 1 segundo
-            }, 1000);
-        });
-
-        autoScroll(); // Iniciar desplazamiento automático
+    // Manejar el scroll con teclado
+    document.addEventListener('keydown', (event) => {
+        manualControl = true;
+        const step = 10; // Velocidad de movimiento manual
+        if (event.key === 'ArrowUp') {
+            position += step; // Subir
+        } else if (event.key === 'ArrowDown') {
+            position -= step; // Bajar
+        }
+        content.style.transform = `translateY(${position}px)`;
     });
+
+    document.addEventListener('keyup', () => {
+        setTimeout(() => {
+            manualControl = false; // Regresar a automático tras 1 segundo
+        }, 1000);
+    });
+
+    // Manejar el scroll táctil
+    content.addEventListener('touchstart', (event) => {
+        touchStartY = event.touches[0].clientY; // Guarda la posición de inicio del toque
+    });
+
+    content.addEventListener('touchmove', (event) => {
+        touchMoveY = event.touches[0].clientY; // Obtiene la posición del toque mientras se mueve
+        const deltaY = touchStartY - touchMoveY; // Diferencia del movimiento
+
+        if (Math.abs(deltaY) > 5) { // Solo si el movimiento es suficientemente grande
+            position += deltaY * 0.5; // Ajusta la velocidad del movimiento táctil
+            content.style.transform = `translateY(${position}px)`;
+            touchStartY = touchMoveY; // Actualiza la posición de inicio
+        }
+    });
+
+    // Para detener el scroll cuando el usuario deja de tocar
+    content.addEventListener('touchend', () => {
+        manualControl = false; // Regresar a automático
+    });
+
+    autoScroll(); // Iniciar desplazamiento automático
+});
+
 </script>
 
 
