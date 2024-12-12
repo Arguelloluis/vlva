@@ -1,0 +1,156 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head>     
+    <meta charset="UTF-8">     
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">     
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">     
+    <title>Star Wars Scroller</title>     
+    <link href="arbol.css" rel="stylesheet">
+    <style>
+        #audio-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #final-section {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: yellow;
+            z-index: 2000;
+        }
+        #gift-button {
+            background: linear-gradient(90deg, #111, #444, #111);
+            border: 2px solid #f00;
+            color: #f00;
+            padding: 10px 20px;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px #f00, inset 0 0 5px #f00;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        #gift-button:hover {
+            background: linear-gradient(90deg, #444, #111, #444);
+            box-shadow: 0 0 20px #f00, inset 0 0 10px #f00;
+        }
+    </style>
+</head> 
+<body>     
+    <button id="audio-toggle" onclick="toggleAudio()">🔊 Audio On/Off</button>
+
+    <audio id="starwars-audio" autoplay loop>         
+        <source src="StarWars.mp3" type="audio/mpeg">         
+        Your browser does not support the audio element.     
+    </audio>          
+    
+    <section class="intro">         
+        Eres la persona más increíble que,<br> conocí este año.....     
+    </section>     
+    <section class="logo">         
+        <img src="logo.jpg" alt="DevDrawer Star Wars Scroll Screen Mockup">     
+    </section>     
+    <div id="scroller">         
+        <div id="content">             
+            <p id="title">Feliz Navidad, princesita de Cristo</p>           
+            <p id="subtitle"> </p>             
+            <br>             
+            <p>Como alguna vez te lo dije, fuiste un regalo adelantado de Navidad. Estos meses han sido muy duros para mí; te extraño mucho. Extraño tu amistad, nuestros mensajes, y todo lo que compartíamos.</p>             
+            <p>Desearía que todo volviera a ser como antes, pero entiendo que ya no es así. Sé que no quieres saber de mí, y por eso no me escribes ni me das señales desde hace tiempo. Lo entiendo y lo acepto, pero no quiero que termine el año sin que sepas cuánto te quiero y lo importante que fuiste para mí.</p>             
+            <p>Este año me llenaste de alegrías. Fuiste una persona de gran ayuda, y lamento profundamente que lo nuestro no haya podido ser. Mis planes y mis sueños ya te incluían, y realmente los quería compartir contigo, con nadie más.</p>             
+            <p>Recuerdo que una vez me dijiste que las Navidades te ponían un poco triste porque a tu familia no le gustaba mucho celebrar este día, pero como a ti sí te gusta, espero que este regalo te haga sentir mejor. Lo hice con todo mi corazón y con la esperanza de sacarte una sonrisa.</p>             
+            <p>Te deseo una Navidad llena de paz y amor. Siempre tendrás un lugar especial en mi corazón.</p>             
+            <p>Te quiero mucho.</p>
+        </div>     
+    </div>     
+
+    <div id="final-section">       
+        <div id="final-text">Da click para que veas tu regalo, princesita</div>       
+        <button id="gift-button" onclick="goToGift()">Descubre tu sorpresa</button>   
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const finalSection = document.getElementById('final-section');
+
+            // Mostrar el texto y el botón después de 15 segundos
+            setTimeout(() => {
+                finalSection.style.display = 'flex';
+            }, 60000); // Tiempo en milisegundos
+        });
+
+        function toggleAudio() {
+            const audio = document.getElementById('starwars-audio');
+            const audioToggle = document.getElementById('audio-toggle');
+            if (audio.paused) {
+                audio.play();
+                audioToggle.textContent = '🔊 Audio On/Off';
+            } else {
+                audio.pause();
+                audioToggle.textContent = '🔇 Audio Off';
+            }
+        }
+
+        function goToGift() {
+            // Cambia esto a la URL de tu página de regalo
+            alert("¡Sorpresa! Aquí aparecerá tu regalo.");
+            window.location.href = 'tu_pagina_de_regalo.html';
+        }
+    </script> 
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const content = document.getElementById('content');
+        let position = 0; // Posición inicial
+        let speed = 0.1; // Velocidad automática (más lento = menor valor)
+        let manualControl = false; // Bandera para saber si el usuario controla
+
+        function autoScroll() {
+            if (!manualControl) {
+                position -= speed; // Mueve el texto hacia arriba
+                content.style.transform = `translateY(${position}px)`;
+            }
+            requestAnimationFrame(autoScroll);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            manualControl = true;
+            const step = 10; // Velocidad de movimiento manual
+            if (event.key === 'ArrowUp') {
+                position += step; // Subir
+            } else if (event.key === 'ArrowDown') {
+                position -= step; // Bajar
+            }
+            content.style.transform = `translateY(${position}px)`;
+        });
+
+        document.addEventListener('keyup', () => {
+            setTimeout(() => {
+                manualControl = false; // Regresar a automático tras 1 segundo
+            }, 1000);
+        });
+
+        autoScroll(); // Iniciar desplazamiento automático
+    });
+</script>
+
+
+    <script src="arbol.js"></script> 
+</body> 
+</html>
