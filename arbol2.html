@@ -181,10 +181,10 @@
 
     content.addEventListener('touchmove', (event) => {
         touchMoveY = event.touches[0].clientY; // Obtiene la posición del toque mientras se mueve
-        const deltaY = touchStartY - touchMoveY; // Diferencia del movimiento
+        const deltaY = touchMoveY - touchStartY; // Invertir la dirección del desplazamiento
 
         if (Math.abs(deltaY) > 5) { // Movimiento suficientemente grande
-            position += deltaY * 0.3; // Ajusta la velocidad del movimiento táctil (ligero)
+            position -= deltaY * 0.1; // Ajusta la velocidad del movimiento táctil (ligero)
             content.style.transform = `translateY(${position}px)`; // Actualiza la posición
             touchStartY = touchMoveY; // Actualiza la posición de inicio para el siguiente movimiento
         }
