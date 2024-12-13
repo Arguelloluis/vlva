@@ -127,8 +127,8 @@
    document.addEventListener('DOMContentLoaded', () => {
     const content = document.getElementById('content');
     let position = 0; // Posición inicial
-    let speed = 0.1; // Velocidad de desplazamiento (ajustable)
-    let manualControl = false; // Bandera para saber si el usuario controla
+    let speed = 0.1; // Velocidad de desplazamiento automática (ajustable)
+    let manualControl = false; // Bandera para saber si el usuario controla el desplazamiento
 
     // Variables para el control táctil
     let touchStartY = 0;
@@ -181,10 +181,10 @@
 
     content.addEventListener('touchmove', (event) => {
         touchMoveY = event.touches[0].clientY; // Obtiene la posición del toque mientras se mueve
-        const deltaY = touchMoveY - touchStartY; // Invertir la dirección del desplazamiento
+        const deltaY = touchStartY - touchMoveY; // Diferencia entre inicio y movimiento
 
-        if (Math.abs(deltaY) > 5) { // Movimiento suficientemente grande
-            position -= deltaY * 0.1; // Ajusta la velocidad del movimiento táctil (ligero)
+        if (Math.abs(deltaY) > 2) { // Movimiento suficientemente grande para ser sensible
+            position += deltaY * 0.3; // Sensibilidad más alta (puedes ajustar este valor)
             content.style.transform = `translateY(${position}px)`; // Actualiza la posición
             touchStartY = touchMoveY; // Actualiza la posición de inicio para el siguiente movimiento
         }
