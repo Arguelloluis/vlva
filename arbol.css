@@ -122,7 +122,7 @@ p {
 #content {
 	position: absolute;
 	top: 100%;
-	animation: scoller 100s linear 16s;
+	animation: scoller 300s linear 16s;
 }
 
 @keyframes scoller {
