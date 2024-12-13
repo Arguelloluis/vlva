@@ -198,29 +198,24 @@
     autoScroll(); // Iniciar desplazamiento automático
 });
 document.addEventListener('DOMContentLoaded', () => {
-    const scroller = document.getElementById('scroller');
-    let startY = 0; // Posición inicial del toque
+    let touchStartY = 0; // Posición inicial del toque
     let scrollPosition = 0; // Posición de desplazamiento actual
 
     // Manejar el inicio del toque
-    scroller.addEventListener('touchstart', (event) => {
-        startY = event.touches[0].clientY; // Guarda la posición Y inicial
+    document.addEventListener('touchstart', (event) => {
+        touchStartY = event.touches[0].clientY; // Guarda la posición Y inicial
     });
 
     // Manejar el movimiento del toque
-    scroller.addEventListener('touchmove', (event) => {
+    document.addEventListener('touchmove', (event) => {
+        event.preventDefault(); // Evita el comportamiento predeterminado
         const currentY = event.touches[0].clientY; // Obtiene la posición Y actual
-        const deltaY = startY - currentY; // Calcula la diferencia
+        const deltaY = touchStartY - currentY; // Calcula la diferencia
 
         scrollPosition += deltaY; // Actualiza la posición de desplazamiento
-        scroller.scrollTo(0, scrollPosition); // Desplaza el contenido
+        window.scrollTo(0, scrollPosition); // Desplaza el contenido
 
-        startY = currentY; // Actualiza la posición inicial para el siguiente movimiento
-    });
-
-    // Manejar el final del toque
-    scroller.addEventListener('touchend', () => {
-        // Aquí puedes agregar lógica adicional si es necesario
+        touchStartY = currentY; // Actualiza la posición inicial para el siguiente movimiento
     });
 });
 </script>
