@@ -101,7 +101,7 @@
             // Mostrar el texto y el botón después de 15 segundos
             setTimeout(() => {
                 finalSection.style.display = 'flex';
-            }, 50000); // Tiempo en milisegundos
+            }, 80000); // Tiempo en milisegundos
         });
 
         function toggleAudio() {
@@ -123,82 +123,7 @@
         }
     </script> 
 
-<script>
-   document.addEventListener('DOMContentLoaded', () => {
-    const content = document.getElementById('content');
-    let position = 0; // Posición inicial
-    let speed = 0.1; // Velocidad de desplazamiento automática (ajustable)
-    let manualControl = false; // Bandera para saber si el usuario controla el desplazamiento
 
-    // Variables para el control táctil
-    let touchStartY = 0;
-    let touchMoveY = 0;
-
-    // Función para el desplazamiento automático
-    function autoScroll() {
-        if (!manualControl) {
-            position -= 0.02; // Desplazamiento lento cuando no hay control manual
-            content.style.transform = `translateY(${position}px)`;
-        }
-        requestAnimationFrame(autoScroll); // Mantener el desplazamiento continuo
-    }
-
-    // Manejar el scroll con el mouse (opcional)
-    document.addEventListener('wheel', (event) => {
-        manualControl = true;
-        const step = event.deltaY; // Desplazamiento del mouse
-        position -= step * 0.5; // Ajustar sensibilidad
-        content.style.transform = `translateY(${position}px)`;
-
-        // Volver al modo automático después de un tiempo
-        setTimeout(() => {
-            manualControl = false;
-        }, 1000);
-    });
-
-    // Manejar el scroll con teclado (opcional)
-    document.addEventListener('keydown', (event) => {
-        manualControl = true;
-        const step = 10; // Velocidad de movimiento manual
-        if (event.key === 'ArrowUp') {
-            position += step; // Subir
-        } else if (event.key === 'ArrowDown') {
-            position -= step; // Bajar
-        }
-        content.style.transform = `translateY(${position}px)`;
-    });
-
-    document.addEventListener('keyup', () => {
-        setTimeout(() => {
-            manualControl = false; // Regresar al desplazamiento automático
-        }, 1000);
-    });
-
-    // Manejar el scroll táctil para mover el contenido
-    content.addEventListener('touchstart', (event) => {
-        touchStartY = event.touches[0].clientY; // Guarda la posición de inicio del toque
-    });
-
-    content.addEventListener('touchmove', (event) => {
-        touchMoveY = event.touches[0].clientY; // Obtiene la posición del toque mientras se mueve
-        const deltaY = touchStartY - touchMoveY; // Diferencia entre inicio y movimiento
-
-        if (Math.abs(deltaY) > 2) { // Movimiento suficientemente grande para ser sensible
-            position += deltaY * 0.3; // Sensibilidad más alta (puedes ajustar este valor)
-            content.style.transform = `translateY(${position}px)`; // Actualiza la posición
-            touchStartY = touchMoveY; // Actualiza la posición de inicio para el siguiente movimiento
-        }
-    });
-
-    // Para detener el scroll cuando el usuario deja de tocar
-    content.addEventListener('touchend', () => {
-        manualControl = false; // Regresar al desplazamiento automático
-    });
-
-    autoScroll(); // Iniciar desplazamiento automático
-});
-
-</script>
 
 
     <script src="arbol.js"></script> 
