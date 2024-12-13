@@ -127,31 +127,75 @@
    document.addEventListener('DOMContentLoaded', () => {
     const content = document.getElementById('content');
     let position = 0; // Posición inicial
-    let touchStartY = 0; // Almacenará la posición Y cuando comienza el toque
-    let touchEndY = 0; // Almacenará la posición Y cuando termina el toque
+    let speed = 0.02; // Mucho más lento (reducido de 0.1 a 0.02)
+    let manualControl = false; // Bandera para saber si el usuario controla
 
-    // Evento cuando empieza el toque
+    // Variables para el control táctil
+    let touchStartY = 0;
+    let touchMoveY = 0;
+
+    function autoScroll() {
+        if (!manualControl) {
+            position -= speed; // Mueve el texto hacia arriba muy lentamente
+            content.style.transform = `translateY(${position}px)`;
+        }
+        requestAnimationFrame(autoScroll);
+    }
+
+    // Manejar el scroll con el mouse
+    document.addEventListener('wheel', (event) => {
+        manualControl = true;
+        const step = event.deltaY; // Usar el desplazamiento del mouse directamente
+        position -= step * 0.5; // Ajustar la sensibilidad del scroll
+        content.style.transform = `translateY(${position}px)`;
+
+        // Volver al modo automático después de un breve período
+        setTimeout(() => {
+            manualControl = false;
+        }, 1000);
+    });
+
+    // Manejar el scroll con teclado
+    document.addEventListener('keydown', (event) => {
+        manualControl = true;
+        const step = 10; // Velocidad de movimiento manual
+        if (event.key === 'ArrowUp') {
+            position += step; // Subir
+        } else if (event.key === 'ArrowDown') {
+            position -= step; // Bajar
+        }
+        content.style.transform = `translateY(${position}px)`;
+    });
+
+    document.addEventListener('keyup', () => {
+        setTimeout(() => {
+            manualControl = false; // Regresar a automático tras 1 segundo
+        }, 1000);
+    });
+
+    // Manejar el scroll táctil
     content.addEventListener('touchstart', (event) => {
-        touchStartY = event.touches[0].clientY; // Guarda la posición inicial del toque
+        touchStartY = event.touches[0].clientY; // Guarda la posición de inicio del toque
     });
 
-    // Evento cuando el usuario mueve el dedo
     content.addEventListener('touchmove', (event) => {
-        touchEndY = event.touches[0].clientY; // Guarda la nueva posición mientras mueve el dedo
+        touchMoveY = event.touches[0].clientY; // Obtiene la posición del toque mientras se mueve
+        const deltaY = touchStartY - touchMoveY; // Diferencia del movimiento
 
-        const deltaY = touchStartY - touchEndY; // Diferencia de desplazamiento en Y
-        position += deltaY; // Ajusta la posición vertical
-        content.style.transform = `translateY(${position}px)`; // Aplica el movimiento en Y
-
-        touchStartY = touchEndY; // Actualiza la posición inicial del toque para el próximo movimiento
+        if (Math.abs(deltaY) > 5) { // Solo si el movimiento es suficientemente grande
+            position += deltaY * 0.5; // Ajusta la velocidad del movimiento táctil
+            content.style.transform = `translateY(${position}px)`;
+            touchStartY = touchMoveY; // Actualiza la posición de inicio
+        }
     });
 
-    // Evento cuando termina el toque
+    // Para detener el scroll cuando el usuario deja de tocar
     content.addEventListener('touchend', () => {
-        // No hacemos nada adicional al terminar el toque, el control ya está siendo gestionado por el 'touchmove'
+        manualControl = false; // Regresar a automático
     });
-});
 
+    autoScroll(); // Iniciar desplazamiento automático
+});
 </script>
 
 
